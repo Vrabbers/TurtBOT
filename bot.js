@@ -42,7 +42,7 @@ client.on('message', message  => {
         if(cind == -1){
           throw new CommandError("The command " + cmd + " doesn't exist", commandSystem, message.content);
         }else{
-          commandSystem.commands[cind].func(msg,message,client)
+          commandSystem.commands[cind].func(client)
         }
       }
 
@@ -60,9 +60,10 @@ client.on('message', message  => {
 fs.readFile('token.txt', 'utf8', function(err, data) {  
   if (err){
     if(err.code == "ENOENT"){//no file error
-      console.error(`The file "token.txt" doesn\'t seem to exist. It should contain be in the same directory as bot.js and contain the bot token.`)
+      throw new Error(err.message + " The file \"token.txt\" doesn\'t seem to exist. It should contain be in the same directory as bot.js and contain the bot token.")
+    }else{
+      throw err;
     }
-    throw err;
   } 
   commandSystem.loadCommands();
   console.log(JSON.stringify(commandSystem.commands));
