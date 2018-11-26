@@ -12,6 +12,7 @@ function loadCommandH(){
           message.edit(`b${(pingTime > 2000) ? "aaa... a" : "a".repeat(Math.floor(pingTime/10))}r (${pingTime}ms)`)
         });
     });
+    makeCommand('here',function(msg,message,client){message.channel.send('there!')})
 }
 module.exports = {
     loadCommands: loadCommandH,
