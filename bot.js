@@ -42,7 +42,7 @@ client.on('message', message  => {
         if(cind == -1){
           throw new CommandError("The command " + cmd + " doesn't exist", commandSystem, message.content);
         }else{
-          commandSystem.commands[cind].func(client)
+          commandSystem.commands[cind].func(msg,message,client)
         }
       }
 
