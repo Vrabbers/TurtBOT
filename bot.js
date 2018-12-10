@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const fs = require('fs');
 var settings = require('./settings.js');
-var commandSystem = require('./commands.js');
+var commandHandler = require('./commands.js');
 
 class CommandError extends Error {
     constructor(message,cs,ms){
@@ -34,15 +34,15 @@ client.on('message', message  => {
         console.log(JSON.stringify(settings));
       }else if(cmd == "reloadcommands"){
         delete require.cache[require.resolve('./commands.js')]
-        commandSystem = require('./commands.js')
-        commandSystem.loadCommands();
-        console.log(JSON.stringify(commandSystem.commands));
+        commandHandler = require('./commands.js')
+        commandHandler.loadCommands();
+        console.log(JSON.stringify(commandHandler.commands));
       }else{
-        let cind = commandSystem.commands.findIndex(i => i.name === cmd)  
+        let cind = commandHandler.commands.findIndex(i => i.name === cmd)  
         if(cind == -1){
-          throw new CommandError("The command " + cmd + " doesn't exist", commandSystem, message.content);
+          throw new CommandError("The command " + cmd + " doesn't exist", commandHandler, message.content);
         }else{
-          commandSystem.commands[cind].func(msgstr,message,client)
+          commandHandler.commands[cind].func(msgstr,message,client)
         }
       }
 
@@ -61,8 +61,8 @@ fs.readFile('token.txt', 'utf8', function(err, data) {
   if (err){
     throw err;
   }
-  commandSystem.loadCommands();
-  console.log(JSON.stringify(commandSystem.commands));
+  commandHandler.loadCommands();
+  console.log(JSON.stringify(commandHandler.commands));
   console.log("Done reading token.txt");
   client.login(data);
 });
