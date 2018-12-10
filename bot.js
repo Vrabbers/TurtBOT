@@ -3,6 +3,7 @@ const client = new Discord.Client();
 const fs = require('fs');
 var settings = require('./settings.js');
 var commandHandler = require('./commands.js');
+var owner;
 
 class CommandError extends Error {
     constructor(message,cs,ms){
@@ -28,14 +29,16 @@ client.on('message', message  => {
     if(message.content.toLowerCase().startsWith(settings.prefix)){
       let msgstr = message.content.substr(settings.prefix.length);
       let cmd = msgstr.split(/\s+/)[0].toLowerCase()
-      if(cmd == "reloadsettings"){
+      if(cmd == "reloadsettings" && message.author.id == owner){
         delete require.cache[require.resolve('./settings.js')];
         settings = require('./settings.js');
+        console.log("Reloaded settings");
         console.log(JSON.stringify(settings));
-      }else if(cmd == "reloadcommands"){
+      }else if(cmd == "reloadcommands" && message.author.id == owner){
         delete require.cache[require.resolve('./commands.js')]
         commandHandler = require('./commands.js')
         commandHandler.loadCommands();
+        console.log("Reloaded commands");
         console.log(JSON.stringify(commandHandler.commands));
       }else{
         let cind = commandHandler.commands.findIndex(i => i.name === cmd)  
@@ -65,4 +68,12 @@ fs.readFile('token.txt', 'utf8', function(err, data) {
   console.log(JSON.stringify(commandHandler.commands));
   console.log("Done reading token.txt");
   client.login(data);
+});
+
+fs.readFile('owner.txt', 'utf8', function(err,data){
+  if(err){
+    throw err;
+  }
+  console.log("Done reading owner.txt");
+  owner = data;
 });
