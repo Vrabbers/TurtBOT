@@ -59,12 +59,8 @@ client.on('message', message  => {
 
 fs.readFile('token.txt', 'utf8', function(err, data) {  
   if (err){
-    if(err.code == "ENOENT"){//no file error
-      throw new Error(err.message + " The file \"token.txt\" doesn\'t seem to exist. It should contain be in the same directory as bot.js and contain the bot token.")
-    }else{
-      throw err;
-    }
-  } 
+    throw err;
+  }
   commandSystem.loadCommands();
   console.log(JSON.stringify(commandSystem.commands));
   console.log("Done reading token.txt");
