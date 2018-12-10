@@ -17,22 +17,22 @@ client.on('ready', () => {
 });
 
 client.on('message', message  => {
-  if (message.content == "foo") {
+  /*if (message.content == "foo") {
     let pingOne = Date.now();
     message.channel.send("bar... calculating").then(function(message){
       let pingTime = Date.now() - pingOne;
       message.edit(`b${(pingTime > 2000) ? "aaa... a" : "a".repeat(Math.floor(pingTime/10))}r (${pingTime}ms)`)
     });
-  }
+  }*/
   try{  
     if(message.content.toLowerCase().startsWith(settings.prefix)){
-      let msg = message.content.substr(settings.prefix.length);
-      let cmd = msg.split(/\s+/)[0]
+      let msgstr = message.content.substr(settings.prefix.length);
+      let cmd = msgstr.split(/\s+/)[0].toLowerCase()
       if(cmd == "reloadsettings"){
         delete require.cache[require.resolve('./settings.js')];
         settings = require('./settings.js');
         console.log(JSON.stringify(settings));
-      }else if(cmd == "reloadcommand"){
+      }else if(cmd == "reloadcommands"){
         delete require.cache[require.resolve('./commands.js')]
         commandSystem = require('./commands.js')
         commandSystem.loadCommands();
@@ -42,7 +42,7 @@ client.on('message', message  => {
         if(cind == -1){
           throw new CommandError("The command " + cmd + " doesn't exist", commandSystem, message.content);
         }else{
-          commandSystem.commands[cind].func(msg,message,client)
+          commandSystem.commands[cind].func(msgstr,message,client)
         }
       }
 
