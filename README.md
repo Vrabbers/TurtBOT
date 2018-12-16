@@ -5,5 +5,6 @@ settings.js has the settings
 commands.js has commands
 ## Set-up
 token.txt should have the bot token
+
 owner.txt should have the bot owner's ID
 
