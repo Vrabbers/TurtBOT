@@ -29,32 +29,18 @@ client.on('message', message  => {
     if(message.content.toLowerCase().startsWith(settings.prefix)){
       let msgstr = message.content.substr(settings.prefix.length);
       let cmd = msgstr.split(/\s+/)[0].toLowerCase()
-      if(cmd == "reloadsettings" && message.author.id == owner){
-        delete require.cache[require.resolve('./settings.js')];
-        settings = require('./settings.js');
-        console.log("Reloaded settings");
-        console.log(JSON.stringify(settings));
-      }else if(cmd == "reloadcommands" && message.author.id == owner){
-        delete require.cache[require.resolve('./commands.js')]
-        commandHandler = require('./commands.js')
-        commandHandler.loadCommands();
-        console.log("Reloaded commands");
-        console.log(JSON.stringify(commandHandler.commands));
+      let cind = commandHandler.commands.findIndex(i => i.name === cmd)  
+      if(cind == -1){
+        throw new CommandError("The command " + cmd + " doesn't exist", commandHandler, message.content);
       }else{
-        let cind = commandHandler.commands.findIndex(i => i.name === cmd)  
-        if(cind == -1){
-          throw new CommandError("The command " + cmd + " doesn't exist", commandHandler, message.content);
-        }else{
-          commandHandler.commands[cind].func(msgstr,message,client)
-        }
+         commandHandler.commands[cind].func(msgstr,message,client)
       }
-
     }
   }catch(err){
     console.error(err)
     let embed = new Discord.RichEmbed()
     .setColor(0xED4D30)
-    .setTitle("<:blobexplosion:516363170072231936> Error!")
+    .setTitle("<a:ablobexplosion:528760786999574539> Error!")
     .setDescription(err);
     message.channel.send(embed);
   }
@@ -77,3 +63,17 @@ fs.readFile('owner.txt', 'utf8', function(err,data){
   console.log("Done reading owner.txt");
   owner = data;
 });
+
+function reloadSettings(){
+  delete require.cache[require.resolve('./settings.js')];
+  settings = require('./settings.js');
+  console.log("Reloaded settings");
+  console.log(JSON.stringify(settings));
+}
+function reloadCommands(){
+  delete require.cache[require.resolve('./commands.js')]
+  commandHandler = require('./commands.js')
+  commandHandler.loadCommands();
+  console.log("Reloaded commands");
+  console.log(JSON.stringify(commandHandler.commands));
+}
