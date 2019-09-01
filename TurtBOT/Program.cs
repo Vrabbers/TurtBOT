@@ -30,8 +30,28 @@ namespace TurtBOT
             }
 
             config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
-            Bot.Initialize(token,config);
-            Console.ReadLine();
+            await Bot.Initialize(token,config);
+            while (true)
+            {
+                switch (Console.ReadLine())
+                {
+                    case "config":
+                        config = Config(config);
+                        
+                        var configJson = JsonConvert.SerializeObject(config);
+                        await using (var file = File.CreateText("config.json"))
+                        {
+                            file.Write(configJson);
+                        }
+                        
+                        await Bot.ReInit(config);
+                        break;
+                    case "exit":
+                        return;
+                }
+            }
+
+            
         }
 
         static BotConfig Config(BotConfig bc = new BotConfig())
