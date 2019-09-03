@@ -10,6 +10,7 @@ namespace TurtBOT
            
         public static async Task Main(string[] args)
         {
+
             string token;
             BotConfig config;
             if (!File.Exists("token.txt"))
@@ -29,7 +30,18 @@ namespace TurtBOT
                 file.Write(configJson);
             }
 
-            config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
+            try
+            {
+                config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
+            }
+            catch (JsonSerializationException e)
+            {
+                config = Config();
+                var configJson = JsonConvert.SerializeObject(config);
+                await using var file = File.CreateText("config.json");
+                file.Write(configJson);
+            }
+
             await Bot.Initialize(token,config);
             while (true)
             {
@@ -59,6 +71,9 @@ namespace TurtBOT
             Console.Write("Prefix [{0}]:", bc.Prefix);
             var pref = Console.ReadLine();
             if (pref != "") bc.Prefix = pref;
+            Console.Write("Error Message[{0}]:", bc.ErrorMessage);
+            var erms = Console.ReadLine();
+            if (erms != "") bc.ErrorMessage = erms;
             return bc;
         }
     }

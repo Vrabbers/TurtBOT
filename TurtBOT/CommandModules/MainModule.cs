@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Microsoft.VisualBasic;
 
 namespace TurtBOT.CommandModules
 {
@@ -26,10 +25,10 @@ namespace TurtBOT.CommandModules
 
         [Command("help")]
         [Summary("Gets help")]
-        public async Task Help([Name("(name)")][Summary("Get help for")]string cmdname = null)
+        public async Task Help([Summary("Get help for")]string name = null)
         {
             var embedb = new EmbedBuilder();
-            if (cmdname == null)
+            if (name == null)
             {
                 string help = default;
                 foreach (var c in CommandService.Commands)
@@ -42,15 +41,16 @@ namespace TurtBOT.CommandModules
             }
             else
             {
-                var cmd = CommandService.Commands.First(c => c.Name == cmdname);
-                var usageString = cmd.Name + " ";
+                var cmd = CommandService.Commands.First(c => c.Name == name);
+                var usageString = $"{Bot.BotConfig.Prefix}{cmd.Name} ";
                 var usageFields = new List<EmbedFieldBuilder>();
-                for (int i = 0; i < cmd.Parameters.Count; i++ ) 
+                for (int i = 0; i < cmd.Parameters.Count; i++ )
                 {
-                    usageString += cmd.Parameters[i].Name + " ";
+                    var parameter = cmd.Parameters[i];
+                    usageString += parameter.IsOptional ? $"({parameter.Name})" : parameter.Name;
                     usageFields.Add(new EmbedFieldBuilder()
-                        .WithName($"{TypeName(cmd.Parameters[i].Type)} parameter {i + 1}")
-                        .WithValue(cmd.Parameters[i].Summary)
+                        .WithName($"{Utils.TypeName(parameter.Type)} {parameter.Name}")
+                        .WithValue(parameter.Summary)
                         .WithIsInline(true));
                 }
                 embedb.WithTitle(cmd.Name)
@@ -69,15 +69,6 @@ namespace TurtBOT.CommandModules
             [Name("3rd")] [Summary("The 3rd one")] int c)
         {
             await ReplyAsync(a + b + c);
-        }
-
-
-        private string TypeName(Type type)
-        {
-            if (type == typeof(double)) { return "Decimal"; }
-            if (type == typeof(int)) { return "Integer"; }
-
-            return type.Name;
         }
     }
 }

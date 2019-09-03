@@ -9,7 +9,7 @@ namespace TurtBOT
 {
     public static class Bot
     {
-        private static BotConfig botConfig;
+        public static BotConfig BotConfig;
         
         private static readonly DiscordSocketClient client = new DiscordSocketClient();
 
@@ -17,7 +17,7 @@ namespace TurtBOT
 
         public static async Task Initialize(string token, BotConfig config)
         {
-            botConfig = config;
+            BotConfig = config;
             client.Log += Log;
             client.MessageReceived += OnMessageReceived;
             
@@ -30,7 +30,7 @@ namespace TurtBOT
         public static async Task ReInit(BotConfig config)
         {
             await client.StopAsync();
-            botConfig = config;
+            BotConfig = config;
             await client.StartAsync();
         }
         
@@ -56,9 +56,19 @@ namespace TurtBOT
 
         static async Task OnMessageReceived(SocketMessage msgpar)
         {
-            if (msgpar is SocketUserMessage msg && msg.Content.StartsWith(botConfig.Prefix) && !msg.Author.IsBot)
+            if (msgpar is SocketUserMessage msg && msg.Content.StartsWith(BotConfig.Prefix) && !msg.Author.IsBot)
             {
-                await Commands.ExecuteAsync(new SocketCommandContext(client, msg), botConfig.Prefix.Length, null);
+                var c = await Commands.ExecuteAsync(new SocketCommandContext(client, msg), BotConfig.Prefix.Length, null);
+                if (!c.IsSuccess)
+                {
+                    await msg.Channel.SendMessageAsync(embed: new EmbedBuilder()
+                        .WithTitle("<:blobexplosion:516363170072231936> Error!")
+                        .WithDescription(c.ErrorReason)
+                        .WithColor(Color.Red).Build());
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error in Command '{0}': {1}", msg.Content, c.ErrorReason);
+                    Console.ResetColor();
+                }
             }
         }
     }
