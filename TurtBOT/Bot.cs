@@ -10,28 +10,31 @@ namespace TurtBOT
     public static class Bot
     {
         public static BotConfig BotConfig;
+
+        private static DateTime startTime;
         
-        private static readonly DiscordSocketClient client = new DiscordSocketClient();
+        private static readonly DiscordSocketClient Client = new DiscordSocketClient();
 
         private static readonly CommandService Commands = new CommandService();
-
+        
         public static async Task Initialize(string token, BotConfig config)
         {
             BotConfig = config;
-            client.Log += Log;
-            client.MessageReceived += OnMessageReceived;
+            Client.Log += Log;
+            Client.MessageReceived += OnMessageReceived;
             
             await Commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
 
-            await client.LoginAsync(TokenType.Bot, token);
-            await client.StartAsync();
+            await Client.LoginAsync(TokenType.Bot, token);
+            await Client.StartAsync();
+            startTime = DateTime.Now;
         }
 
         public static async Task ReInit(BotConfig config)
         {
-            await client.StopAsync();
+            await Client.StopAsync();
             BotConfig = config;
-            await client.StartAsync();
+            await Client.StartAsync();
         }
         
         private static Task Log(LogMessage msg)
@@ -58,18 +61,25 @@ namespace TurtBOT
         {
             if (msgpar is SocketUserMessage msg && msg.Content.StartsWith(BotConfig.Prefix) && !msg.Author.IsBot)
             {
-                var c = await Commands.ExecuteAsync(new SocketCommandContext(client, msg), BotConfig.Prefix.Length, null);
+                var c = await Commands.ExecuteAsync(new SocketCommandContext(Client, msg), BotConfig.Prefix.Length, null);
                 if (!c.IsSuccess)
                 {
                     await msg.Channel.SendMessageAsync(embed: new EmbedBuilder()
                         .WithTitle("<:blobexplosion:516363170072231936> Error!")
-                        .WithDescription(c.ErrorReason)
-                        .WithColor(Color.Red).Build());
+                        .WithDescription($"**{c.Error}**: {c.ErrorReason}")
+                        .WithColor(Color.Red)
+                        .WithFooter("This problem has been reported. If you don't understand what this means, don't worry.")
+                        .Build());
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error in Command '{0}': {1}", msg.Content, c.ErrorReason);
+                    Console.WriteLine("Error in Command '{0}': {1} {2}", msg.Content, c.Error, c.ErrorReason);
                     Console.ResetColor();
                 }
             }
+        }
+
+        public static TimeSpan GetUptime()
+        {
+            return DateTime.Now - startTime;
         }
     }
 }

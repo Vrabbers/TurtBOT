@@ -34,7 +34,7 @@ namespace TurtBOT
             {
                 config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
             }
-            catch (JsonSerializationException e)
+            catch (JsonSerializationException)
             {
                 config = Config();
                 var configJson = JsonConvert.SerializeObject(config);

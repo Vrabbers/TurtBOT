@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +24,7 @@ namespace TurtBOT.CommandModules
 
         [Command("help")]
         [Summary("Gets help")]
-        public async Task Help([Summary("Get help for")]string name = null)
+        public async Task Help([Summary("Command to get extra help for")]string name = null)
         {
             var embedb = new EmbedBuilder();
             if (name == null)
@@ -36,6 +35,7 @@ namespace TurtBOT.CommandModules
                     help += c.Name + "\n";
                 }
                 embedb.WithTitle("Help")
+                    .WithColor(Color.Blue)
                     .WithDescription(help);
                 await ReplyAsync(embed: embedb.Build());
             }
@@ -44,10 +44,9 @@ namespace TurtBOT.CommandModules
                 var cmd = CommandService.Commands.First(c => c.Name == name);
                 var usageString = $"{Bot.BotConfig.Prefix}{cmd.Name} ";
                 var usageFields = new List<EmbedFieldBuilder>();
-                for (int i = 0; i < cmd.Parameters.Count; i++ )
+                foreach (var parameter in cmd.Parameters)
                 {
-                    var parameter = cmd.Parameters[i];
-                    usageString += parameter.IsOptional ? $"({parameter.Name})" : parameter.Name;
+                    usageString += parameter.IsOptional ? $"({parameter.Name}) " : $"{parameter.Name} ";
                     usageFields.Add(new EmbedFieldBuilder()
                         .WithName($"{Utils.TypeName(parameter.Type)} {parameter.Name}")
                         .WithValue(parameter.Summary)
@@ -56,19 +55,23 @@ namespace TurtBOT.CommandModules
                 embedb.WithTitle(cmd.Name)
                     .WithDescription(cmd.Summary)
                     .WithFields(new EmbedFieldBuilder().WithName("Usage").WithValue(usageString))
+                    .WithColor(Color.Blue)
                     .WithFields(usageFields);
+                if(cmd.Parameters.Count != 0) { embedb.WithFooter("Parameters in (parentheses) are optional.");}
                 await ReplyAsync(embed: embedb.Build());
             }
         }
 
-        [Command("test")]
-        [Summary("This command has many arguments")]
-        public async Task Test(
-            [Name("1st")] [Summary("The 1st one")] string a,
-            [Name("2nd")] [Summary("The 2nd one")] string b,
-            [Name("3rd")] [Summary("The 3rd one")] int c)
+        [Command("uptime")]
+        [Summary("Gets the uptime")]
+        public async Task Uptime()
         {
-            await ReplyAsync(a + b + c);
+            var formattedTime = Bot.GetUptime().ToString(@"hh\:mm\:ss");
+            await ReplyAsync(embed: new EmbedBuilder()
+                .WithTitle("Uptime")
+                .WithColor(Color.Blue)
+                .WithDescription($"I've been up for {formattedTime}")
+                .Build());
         }
     }
 }
