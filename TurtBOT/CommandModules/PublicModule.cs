@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace TurtBOT.CommandModules
 {
-    public class MainModule : ModuleBase
+    public class PublicModule : ModuleBase
     {
         public CommandService CommandService { get; set; }
 
@@ -26,18 +27,49 @@ namespace TurtBOT.CommandModules
         [Summary("Gets help")]
         public async Task Help([Summary("Command to get extra help for")]string name = null)
         {
-            var embedb = new EmbedBuilder();
+            var embedBuilder = new EmbedBuilder();
             if (name == null)
             {
-                string help = default;
+                embedBuilder.WithTitle("Help").WithColor(Color.Blue);
+                var mainHelp= "";
+                var modHelp = "";
+                var ownerHelp = "";
+
                 foreach (var c in CommandService.Commands)
                 {
-                    help += c.Name + "\n";
+                    if (c.Preconditions.Count == 0)
+                    {
+                        mainHelp += $"{c.Name}\n";
+                    }
+                    else if (c.Preconditions.OfType<RequireOwnerAttribute>().Count() != 0)
+                    {
+                        ownerHelp += $"{c.Name}\n";
+                    }
+                    else
+                    {
+                        modHelp += $"{c.Name}\n";
+                    }
                 }
-                embedb.WithTitle("Help")
-                    .WithColor(Color.Blue)
-                    .WithDescription(help);
-                await ReplyAsync(embed: embedb.Build());
+
+                embedBuilder.WithFields(new EmbedFieldBuilder()
+                    .WithName("Public")
+                    .WithValue(mainHelp)
+                    .WithIsInline(true));
+                if (modHelp != "")
+                {
+                    embedBuilder.WithFields(new EmbedFieldBuilder()
+                        .WithName("Mod")
+                        .WithValue(modHelp)
+                        .WithIsInline(true));
+                }
+                if(ownerHelp != "")
+                {
+                    embedBuilder.WithFields(new EmbedFieldBuilder()
+                        .WithName("Owner")
+                        .WithValue(ownerHelp)
+                        .WithIsInline(true));
+                }
+                await ReplyAsync(embed: embedBuilder.Build());
             }
             else
             {
@@ -52,13 +84,13 @@ namespace TurtBOT.CommandModules
                         .WithValue(parameter.Summary)
                         .WithIsInline(true));
                 }
-                embedb.WithTitle(cmd.Name)
+                embedBuilder.WithTitle(cmd.Name)
                     .WithDescription(cmd.Summary)
                     .WithFields(new EmbedFieldBuilder().WithName("Usage").WithValue(usageString))
-                    .WithColor(Color.Blue)
+                    .WithColor(Color.Green)
                     .WithFields(usageFields);
-                if(cmd.Parameters.Count != 0) { embedb.WithFooter("Parameters in (parentheses) are optional.");}
-                await ReplyAsync(embed: embedb.Build());
+                if(cmd.Parameters.Count != 0) { embedBuilder.WithFooter("Parameters in (parentheses) are optional.");}
+                await ReplyAsync(embed: embedBuilder.Build());
             }
         }
 
