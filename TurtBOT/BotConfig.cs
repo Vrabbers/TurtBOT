@@ -1,13 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TurtBOT
 {
     public struct BotConfig
     {
-        [JsonProperty(Required = Required.Always)]
-        public string Prefix;
-        [JsonProperty(Required = Required.Always)]
-        public string ErrorMessage;
+
+        [JsonPropertyName("prefix")]
+        public string Prefix { get; set; }
+        
+        [JsonPropertyName("errorMessage")]
+        public string ErrorMessage { get; set; }
 
     }
 }

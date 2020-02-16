@@ -44,7 +44,7 @@ namespace TurtBOT.CommandModules
             await ReplyAsync(embed: embedBuilder.Build());
         }
         
-        private readonly ScriptOptions options = ScriptOptions.Default
+        readonly ScriptOptions options = ScriptOptions.Default
             .AddReferences(
                 typeof(SocketCommandContext).Assembly,
                 Assembly.GetEntryAssembly()

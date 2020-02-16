@@ -11,11 +11,11 @@ namespace TurtBOT
     {
         public static BotConfig BotConfig;
 
-        private static DateTime startTime;
-        
-        private static readonly DiscordSocketClient Client = new DiscordSocketClient();
+        static DateTime startTime;
 
-        private static readonly CommandService Commands = new CommandService();
+        static readonly DiscordSocketClient Client = new DiscordSocketClient();
+
+        static readonly CommandService Commands = new CommandService();
         
         public static async Task Initialize(string token, BotConfig config)
         {
@@ -37,7 +37,7 @@ namespace TurtBOT
             await Client.StartAsync();
         }
         
-        private static Task Log(LogMessage msg)
+        static Task Log(LogMessage msg)
         {
             switch (msg.Severity)
             {

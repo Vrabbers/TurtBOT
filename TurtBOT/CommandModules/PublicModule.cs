@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.EntityFrameworkCore;
 
 namespace TurtBOT.CommandModules
 {
@@ -20,9 +22,26 @@ namespace TurtBOT.CommandModules
             watch.Start();
             var task = await ReplyAsync("pinging");
             watch.Stop();
-            await task.ModifyAsync(msg => msg.Content = $"Ping with {watch.ElapsedMilliseconds}ms!");
+            await task.ModifyAsync(msg => msg.Content = $"Hello {Context.User.Username}Ping with {watch.ElapsedMilliseconds}ms!");
+        }
+        
+        [Command("getnick")]
+        [Summary("Pings the bot")]
+        public async Task GetNick()
+        {
+            var user = await DbHandler.GetUser(Context.User.Id);
+            await ReplyAsync(user.DefinedNickname is null
+                ? "you dotn have nick name"
+                : $"nick name is {user.DefinedNickname}");
         }
 
+        [Command("setnick")]
+        [Summary("Pings the bot")]
+        public async Task SetNick(string n)
+        {
+            await DbHandler.ChangeUserNickname(Context.User.Id, n);
+        }
+        
         [Command("help")]
         [Summary("Gets help")]
         public async Task Help([Summary("Command to get extra help for")]string name = null)
@@ -38,17 +57,12 @@ namespace TurtBOT.CommandModules
                 foreach (var c in CommandService.Commands)
                 {
                     if (c.Preconditions.Count == 0)
-                    {
                         mainHelp += $"{c.Name}\n";
-                    }
                     else if (c.Preconditions.OfType<RequireOwnerAttribute>().Count() != 0)
-                    {
                         ownerHelp += $"{c.Name}\n";
-                    }
                     else
-                    {
                         modHelp += $"{c.Name}\n";
-                    }
+                    
                 }
 
                 embedBuilder.WithFields(new EmbedFieldBuilder()

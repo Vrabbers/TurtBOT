@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace TurtBOT
 {
-    class Program
+    internal class Program
     {
            
         public static async Task Main(string[] args)
         {
-
+            
             string token;
             BotConfig config;
             if (!File.Exists("token.txt"))
@@ -25,23 +26,29 @@ namespace TurtBOT
             if (!File.Exists("config.json"))
             {
                 config = Config();
-                var configJson = JsonConvert.SerializeObject(config);
+                var configJson = JsonSerializer.Serialize(config);
                 await using var file = File.CreateText("config.json");
                 file.Write(configJson);
             }
 
             try
             {
-                config = JsonConvert.DeserializeObject<BotConfig>(File.ReadAllText("config.json"));
+                config = JsonSerializer.Deserialize<BotConfig>(File.ReadAllText("config.json"));
             }
-            catch (JsonSerializationException)
+            catch (JsonException)
             {
+                Console.WriteLine("");
                 config = Config();
-                var configJson = JsonConvert.SerializeObject(config);
+                var configJson = JsonSerializer.Serialize(config);
                 await using var file = File.CreateText("config.json");
                 file.Write(configJson);
             }
 
+            await using (var d = new BotDbContext())
+            {
+                d.CreateIfNotExists();
+            }
+            
             await Bot.Initialize(token,config);
             while (true)
             {
@@ -50,7 +57,7 @@ namespace TurtBOT
                     case "config":
                         config = Config(config);
                         
-                        var configJson = JsonConvert.SerializeObject(config);
+                        var configJson = JsonSerializer.Serialize(config);
                         await using (var file = File.CreateText("config.json"))
                         {
                             file.Write(configJson);
