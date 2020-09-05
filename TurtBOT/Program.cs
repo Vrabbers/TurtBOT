@@ -1,87 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using System;
 using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace TurtBOT
 {
-    internal class Program
+    class Program
     {
-           
-        public static async Task Main(string[] args)
+        static async Task Main(string[] args)
         {
-            
-            string token;
-            BotConfig config;
-            if (!File.Exists("token.txt"))
-            {
-                Console.Write("Please insert your bot account's token:");
-                token = Console.ReadLine();
-                await using var file = File.CreateText("token.txt");
-                file.Write(token);
-            }
-            token = File.ReadAllText("token.txt");
+            var token = TokenSetup();
+            var config = BotConfig.Setup();
 
-            if (!File.Exists("config.json"))
-            {
-                config = Config();
-                var configJson = JsonSerializer.Serialize(config);
-                await using var file = File.CreateText("config.json");
-                file.Write(configJson);
-            }
+            var client = new DiscordSocketClient();
+            client.Log += Client_Log;
 
-            try
-            {
-                config = JsonSerializer.Deserialize<BotConfig>(File.ReadAllText("config.json"));
-            }
-            catch (JsonException)
-            {
-                Console.WriteLine("");
-                config = Config();
-                var configJson = JsonSerializer.Serialize(config);
-                await using var file = File.CreateText("config.json");
-                file.Write(configJson);
-            }
+            var commandHandler = new CommandHandler(client, new CommandService(), config);
+            await commandHandler.InstallCommandsAsync();
 
-            await using (var d = new BotDbContext())
-            {
-                d.CreateIfNotExists();
-            }
-            
-            await Bot.Initialize(token,config);
-            while (true)
-            {
-                switch (Console.ReadLine())
-                {
-                    case "config":
-                        config = Config(config);
-                        
-                        var configJson = JsonSerializer.Serialize(config);
-                        await using (var file = File.CreateText("config.json"))
-                        {
-                            file.Write(configJson);
-                        }
-                        
-                        await Bot.ReInit(config);
-                        break;
-                    case "exit":
-                        return;
-                }
-            }
-
-            
+            await client.LoginAsync(TokenType.Bot, token);
+            await client.StartAsync();
+            while (true) Console.ReadLine();
         }
 
-        static BotConfig Config(BotConfig bc = new BotConfig())
+        static Task Client_Log(LogMessage msg)
         {
-            Console.Write("Prefix [{0}]:", bc.Prefix);
-            var pref = Console.ReadLine();
-            if (pref != "") bc.Prefix = pref;
-            Console.Write("Error Message[{0}]:", bc.ErrorMessage);
-            var erms = Console.ReadLine();
-            if (erms != "") bc.ErrorMessage = erms;
-            return bc;
+            Console.ForegroundColor = msg.Severity switch
+            {
+                LogSeverity.Error => ConsoleColor.Red,
+                LogSeverity.Warning => ConsoleColor.Yellow,
+                _ => ConsoleColor.White
+            };
+            Console.WriteLine($"[{msg.Severity} {DateTime.Now:T}] {msg.Message}");
+            Console.ResetColor();
+            return Task.CompletedTask;
+        }
+
+        static string TokenSetup()
+        {
+            if (!File.Exists("token.txt"))
+            {
+                Console.Write("Please insert your bot account's token: ");
+                var token = Console.ReadLine();
+                using var file = File.CreateText("token.txt");
+                file.Write(token);
+                return token;
+            }
+            
+            return File.ReadAllText("token.txt"); 
         }
     }
 }

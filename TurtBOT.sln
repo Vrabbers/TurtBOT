@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurtBOT", "TurtBOT\TurtBOT.csproj", "{06F96C18-017C-46DD-81DF-1B579BD44403}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurtBOT", "TurtBOT\TurtBOT.csproj", "{D07ACC8D-6B7A-470E-8F96-77A3EEE4C7E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,9 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{06F96C18-017C-46DD-81DF-1B579BD44403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06F96C18-017C-46DD-81DF-1B579BD44403}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06F96C18-017C-46DD-81DF-1B579BD44403}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06F96C18-017C-46DD-81DF-1B579BD44403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D07ACC8D-6B7A-470E-8F96-77A3EEE4C7E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07ACC8D-6B7A-470E-8F96-77A3EEE4C7E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07ACC8D-6B7A-470E-8F96-77A3EEE4C7E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07ACC8D-6B7A-470E-8F96-77A3EEE4C7E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {17A0F38E-7141-45BC-9440-AB4B77A7402D}
 	EndGlobalSection
 EndGlobal
