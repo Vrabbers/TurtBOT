@@ -1,28 +1,29 @@
 ﻿using System;
-using System.IO;
 using System.Text.Json;
 
 namespace TurtBOT
 {
     public class BotConfig
     {
+        public string Token { get; set; }
         public string BotPrefix { get; set; }
         public string ErrorMessage { get; set; }
-        
+        public string PostgreSqlConnectionString { get; set; }
+
         protected BotConfig() { }
+
+        static readonly JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+        };
 
         public static BotConfig Setup()
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            };
-
             BotConfig obj;
 
-            if (File.Exists("config.json"))    
-                obj = JsonSerializer.Deserialize<BotConfig>(File.ReadAllText("config.json"), options);
+            if (DataDirectory.Exists("config.json"))    
+                obj = JsonSerializer.Deserialize<BotConfig>(DataDirectory.ReadString("config.json"), options);
             else
                 obj = new BotConfig();
 
@@ -32,7 +33,7 @@ namespace TurtBOT
 
                 if (prop.GetValue(obj) is null)
                 {
-                    Console.Write($"Please input value for {prop.Name}: ");
+                    Console.Write($"Please input value for {prop.Name}:");
                     var read = Console.ReadLine();
 
                     if (prop.PropertyType == typeof(string))
@@ -40,9 +41,11 @@ namespace TurtBOT
                 }
             }
 
-            File.WriteAllText("config.json", JsonSerializer.Serialize(obj, options));
+            DataDirectory.WriteString("config.json", JsonSerializer.Serialize(obj, options));
 
             return obj;
         }
+
+        public static BotConfig NoSetup() => JsonSerializer.Deserialize<BotConfig>(DataDirectory.ReadString("config.json"), options);
     }
 }
