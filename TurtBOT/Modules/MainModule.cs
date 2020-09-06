@@ -1,8 +1,5 @@
 ﻿using Discord.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace TurtBOT.Modules
@@ -14,10 +11,13 @@ namespace TurtBOT.Modules
 
 
         [Command("ping")]
-        public async Task PingCommand()
+        public async Task Ping()
         {
-            await ReplyAsync(Config.BotPrefix + "PPPPPPPING!!!!!!!!!!!!!!!!!!!!!");
-            await ReplyAsync(string.Join(" ", CommandService.Commands.Select(x => x.Name)));
+            var watch = new Stopwatch();
+            watch.Start();
+            var message = await ReplyAsync("pinging");
+            watch.Stop();
+            await message.ModifyAsync(msg => msg.Content = $"Ping took {watch.ElapsedMilliseconds}ms!");
         }
     }
 }

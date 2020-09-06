@@ -24,7 +24,6 @@ namespace TurtBOT
 
             services = new ServiceCollection()
                 .AddSingleton(config)
-                .AddSingleton(commands)
                 .BuildServiceProvider();
         }
 

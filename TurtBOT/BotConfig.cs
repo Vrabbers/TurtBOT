@@ -8,7 +8,6 @@ namespace TurtBOT
         public string Token { get; set; }
         public string BotPrefix { get; set; }
         public string ErrorMessage { get; set; }
-        public string PostgreSqlConnectionString { get; set; }
 
         protected BotConfig() { }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Text;
 
@@ -17,7 +18,7 @@ namespace TurtBOT
 
     public class DbUser
     { 
+        [Required]
         public ulong Id { get; set; }
-        public decimal FavouriteNumber { get; set; }
     }
 }
